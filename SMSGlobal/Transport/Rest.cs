@@ -18,6 +18,7 @@ namespace SMSGlobal.SMS.Transport
     class Rest
     {
         private Uri uri;
+        private static HttpClient client;
 
         public string host { get; set; }
         public string port { get; set; }
@@ -32,6 +33,15 @@ namespace SMSGlobal.SMS.Transport
             version = _credentials.version;
             key = _credentials.ApiKey;
             secret = _credentials.ApiSecret;
+
+            client = new HttpClient()
+            {                
+                BaseAddress = new Uri(string.Format("https://{0}", host)),
+                DefaultRequestHeaders =
+                {
+                    Accept = { new MediaTypeWithQualityHeaderValue("application/json") }
+                }
+            };
         }
 
         /// <summary>
@@ -40,7 +50,7 @@ namespace SMSGlobal.SMS.Transport
         /// <returns>Task</returns>
         public async Task<Response.CreditBalance> getCreditBalance()
         {
-            HttpResponseMessage response = await Request("user/credit-balance");
+            using HttpResponseMessage response = await Request("user/credit-balance");
 
             return await response.Content.ReadAsAsync<Response.CreditBalance>();
         }
@@ -52,7 +62,7 @@ namespace SMSGlobal.SMS.Transport
         /// <returns>Task</returns>
         public async Task<Response.SMSId> getSmsId(string id = "")
         {
-            HttpResponseMessage response = await Request("sms", null, null, id);
+            using HttpResponseMessage response = await Request("sms", null, null, id);
 
             SMSId sms = new SMSId();
 
@@ -73,7 +83,7 @@ namespace SMSGlobal.SMS.Transport
         /// <returns>Task</returns>
         public async Task<int> deleteSmsId(string id = "")
         {
-            HttpResponseMessage response = await Request("sms", null, null, id, "delete");
+            using HttpResponseMessage response = await Request("sms", null, null, id, "delete");
 
             return (int)response.StatusCode;
         }
@@ -85,7 +95,7 @@ namespace SMSGlobal.SMS.Transport
         /// <returns>Task</returns>
         public async Task<Response.SMS> getSms(string filter = "")
         {
-            HttpResponseMessage response = await Request("sms", null, filter);
+            using HttpResponseMessage response = await Request("sms", null, filter);
 
             Response.SMS sms = new Response.SMS();
 
@@ -105,7 +115,7 @@ namespace SMSGlobal.SMS.Transport
         /// <returns>Task</returns>
         public async Task<Response.SMS> sendSms(Object payload)
         {
-            HttpResponseMessage response = await Request("sms", payload);
+            using HttpResponseMessage response = await Request("sms", payload);
 
             Response.SMS sms = new Response.SMS();
 
@@ -126,7 +136,7 @@ namespace SMSGlobal.SMS.Transport
         /// <returns>Task</returns>
         public async Task<Response.SMS> getSmsIncoming(string filter = "")
         {
-            HttpResponseMessage response = await Request("sms-incoming", null, filter);
+            using HttpResponseMessage response = await Request("sms-incoming", null, filter);
             Response.SMS sms = new Response.SMS();
 
             if ((int)response.StatusCode == 200)
@@ -147,7 +157,7 @@ namespace SMSGlobal.SMS.Transport
         /// <returns>Task</returns>
         public async Task<int> deleteSmsIncoming(string id = "")
         {
-            HttpResponseMessage response = await Request("sms-incoming", null, null, id, "delete");
+            using HttpResponseMessage response = await Request("sms-incoming", null, null, id, "delete");
 
             return (int)response.StatusCode;
         }
@@ -159,7 +169,7 @@ namespace SMSGlobal.SMS.Transport
         /// <returns>Task</returns>
         public async Task<Response.SmsIncoming> getSmsIncomingById(string id = "")
         {
-            HttpResponseMessage response = await Request("sms-incoming", null, null, id);
+            using HttpResponseMessage response = await Request("sms-incoming", null, null, id);
             SmsIncoming sms = new SmsIncoming();
 
             if ((int)response.StatusCode == 200)
@@ -180,7 +190,7 @@ namespace SMSGlobal.SMS.Transport
         /// <returns>Task</returns>
         public async Task<Response.OptOutNumbers> getOptOuts(string filter = "")
         {
-            HttpResponseMessage response = await Request("opt-outs", null, filter);
+            using HttpResponseMessage response = await Request("opt-outs", null, filter);
             OptOutNumbers opt = new OptOutNumbers();
 
             if ((int)response.StatusCode == 200)
@@ -199,7 +209,7 @@ namespace SMSGlobal.SMS.Transport
         /// <returns>Task</returns>
         public async Task<Response.OptOutNumbers> sendOptOut(Object payload)
         {
-            HttpResponseMessage response = await Request("opt-outs", payload);
+            using HttpResponseMessage response = await Request("opt-outs", payload);
             OptOutNumbers opt = new OptOutNumbers();
 
             if ((int)response.StatusCode == 200)
@@ -219,7 +229,7 @@ namespace SMSGlobal.SMS.Transport
         /// <returns>Task</returns>
         public async Task<Response.OptOutNumbers> sendOptOutValidate(Object payload)
         {
-            HttpResponseMessage response = await Request("opt-outs/validate", payload);
+            using HttpResponseMessage response = await Request("opt-outs/validate", payload);
             OptOutNumbers opt = new OptOutNumbers();
 
             if ((int)response.StatusCode == 200)
@@ -239,7 +249,7 @@ namespace SMSGlobal.SMS.Transport
         /// <returns>Task</returns>
         public async Task<int> deleteOptOut(string number = "")
         {
-            HttpResponseMessage response = await Request("opt-outs", null, null, number, "delete");
+            using HttpResponseMessage response = await Request("opt-outs", null, null, number, "delete");
 
             return (int)response.StatusCode;
         }
@@ -249,7 +259,7 @@ namespace SMSGlobal.SMS.Transport
         /// </summary>
         public async Task<Response.OTPRespone> sendOTP(Object payload)
         {
-            HttpResponseMessage response = await Request("otp", payload);
+            using HttpResponseMessage response = await Request("otp", payload);
 
             Response.OTPRespone otp = new OTPRespone();
 
@@ -268,7 +278,7 @@ namespace SMSGlobal.SMS.Transport
         /// </summary>
         public async Task<Response.OTPRespone> OTPValidateRequest(string requestid, Object payload)
         {
-            HttpResponseMessage response = await Request("otp/requestid", payload, null, requestid, null, "validate");
+            using HttpResponseMessage response = await Request("otp/requestid", payload, null, requestid, null, "validate");
             Response.OTPRespone otp = new OTPRespone();
 
             if ((int)response.StatusCode == 200)
@@ -286,7 +296,7 @@ namespace SMSGlobal.SMS.Transport
         /// </summary>
         public async Task<Response.OTPRespone> OTPValidateDestination(string destinationid, Object payload)
         {
-            HttpResponseMessage response = await Request("otp", payload, null, destinationid, null, "validate");
+            using HttpResponseMessage response = await Request("otp", payload, null, destinationid, null, "validate");
 
             Response.OTPRespone otp = new OTPRespone();
 
@@ -305,7 +315,7 @@ namespace SMSGlobal.SMS.Transport
         /// </summary>
         public async Task<Response.OTPRespone> OTPCancelRequest(string requestid)
         {
-            HttpResponseMessage response = await Request("otp/requestid", null, null, requestid, null, "cancel");
+            using HttpResponseMessage response = await Request("otp/requestid", null, null, requestid, null, "cancel");
 
             Response.OTPRespone otp = new OTPRespone();
 
@@ -324,7 +334,7 @@ namespace SMSGlobal.SMS.Transport
         /// </summary>
         public async Task<Response.OTPRespone> OTPCancelDestination(string destinationid)
         {
-            HttpResponseMessage response = await Request("otp", null, null, destinationid, null, "cancel");
+            using HttpResponseMessage response = await Request("otp", null, null, destinationid, null, "cancel");
 
             Response.OTPRespone otp = new OTPRespone();
 
@@ -348,67 +358,50 @@ namespace SMSGlobal.SMS.Transport
         /// <returns>The http response message object.</returns>
         private async Task<HttpResponseMessage> Request(string path, Object payload = null, string filter = "", string smsid = "", string method = "", string otprequest = "")
         {
-            using (var client = new HttpClient())
+
+            string credentials = "";
+            if (otprequest != "")
             {
-                string credentials = "";
-                if (otprequest != "")
+                credentials = Credentials(path, "POST", filter, smsid, otprequest);         // OTP is always POST.
+            }
+            else if (method == "delete")
+            {
+                credentials = Credentials(path, "DELETE", filter, smsid);
+            }
+            else
+            {
+                credentials = Credentials(path, null == payload ? "GET" : "POST", filter, smsid);
+            }
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("MAC", credentials);
+
+            var json = JsonConvert.SerializeObject(payload);
+
+            HttpResponseMessage response = null;
+            if (otprequest != "")
+            {
+                if (payload == null)
                 {
-                    credentials = Credentials(path, "POST", filter, smsid, otprequest);         // OTP is always POST.
-                }
-                else if (method == "delete")
-                {
-                    credentials = Credentials(path, "DELETE", filter, smsid);
-                }
-                else
-                {
-                    credentials = Credentials(path, null == payload ? "GET" : "POST", filter, smsid);
-                }
-
-                client.BaseAddress = new Uri(string.Format("{0}://{1}", uri.Scheme, uri.Host));
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("MAC", credentials);
-
-                // Get latest Nuget Package version.
-                var packageName = "SMSGlobal";
-                var url = $"https://api.nuget.org/v3-flatcontainer/{packageName}/index.json";
-                var httpClient = new HttpClient();
-                var responseNuget = await httpClient.GetAsync(url);
-                var versionsResponse = await responseNuget.Content.ReadAsAsync<VersionsResponse>();
-                var lastVersion = versionsResponse.Versions[^1]; //(length-1)
-
-                client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "SMSGlobal-SDK/v2 Version/" + lastVersion + ", DotNet/" + System.Environment.Version + " (" + Environment.OSVersion + ")");
-
-                var json = JsonConvert.SerializeObject(payload);
-
-                HttpResponseMessage response = null;
-
-                if (otprequest != "")
-                {
-                    if (payload == null)
-                    {
-                        response = await client.PostAsync(uri.PathAndQuery, new StringContent(""));
-                    }
-                    else
-                    {
-                        response = await client.PostAsync(uri.PathAndQuery, new StringContent(json, Encoding.UTF8, "application/json"));
-                    }
-
-                    return response;
-                }
-                else if (method == "delete")
-                {
-                    response = await client.DeleteAsync(uri.PathAndQuery);
-
-                    return response;
+                    response = await client.PostAsync(uri.PathAndQuery, new StringContent(""));
                 }
                 else
                 {
-                    response = null == payload ? await client.GetAsync(uri.PathAndQuery) : await client.PostAsync(uri.PathAndQuery, new StringContent(json, Encoding.UTF8, "application/json"));
-
-                    return response;
+                    response = await client.PostAsync(uri.PathAndQuery, new StringContent(json, Encoding.UTF8, "application/json"));
                 }
 
+                return response;
+            }
+            else if (method == "delete")
+            {
+                response = await client.DeleteAsync(uri.PathAndQuery);
+
+                return response;
+            }
+            else
+            {
+                response = null == payload ? await client.GetAsync(uri.PathAndQuery) : await client.PostAsync(uri.PathAndQuery, new StringContent(json, Encoding.UTF8, "application/json"));
+
+                return response;
             }
         }
 
